@@ -50,7 +50,7 @@ def load(train_size=50_000):
 
 def load_and_log():
     # 🚀 start a run, with a type to label it and a project it can call home
-    with wandb.init(project="artifacts-example", job_type="load-data") as run:
+    with wandb.init(project="dagster_launch", job_type="load-data") as run:
         datasets = load()  # separate code for loading the datasets
         names = ["training", "validation", "test"]
 
@@ -92,7 +92,7 @@ def preprocess(dataset, normalize=True, expand_dims=True):
 
 
 def preprocess_and_log(steps):
-    with wandb.init(project="artifacts-example", job_type="preprocess-data") as run:
+    with wandb.init(project="dagster_launch", job_type="preprocess-data") as run:
         processed_data = wandb.Artifact(
             "mnist-preprocess", type="dataset",
             description="Preprocessed MNIST dataset",
@@ -173,7 +173,7 @@ class ConvNet(nn.Module):
 
 
 def build_model_and_log(config):
-    with wandb.init(project="artifacts-example", job_type="initialize", config=config) as run:
+    with wandb.init(project="dagster_launch", job_type="initialize", config=config) as run:
         config = wandb.config
 
         model = ConvNet(**config)
@@ -314,7 +314,7 @@ from torch.utils.data import DataLoader
 
 
 def train_and_log(config):
-    with wandb.init(project="artifacts-example", job_type="train", config=config) as run:
+    with wandb.init(project="dagster_launch", job_type="train", config=config) as run:
         config = wandb.config
 
         data = run.use_artifact('mnist-preprocess:latest')
@@ -353,7 +353,7 @@ def train_and_log(config):
 
 
 def evaluate_and_log(config=None):
-    with wandb.init(project="artifacts-example", job_type="report", config=config) as run:
+    with wandb.init(project="dagster_launch", job_type="report", config=config) as run:
         data = run.use_artifact('mnist-preprocess:latest')
         data_dir = data.download()
         testing_set = read(data_dir, "test")
