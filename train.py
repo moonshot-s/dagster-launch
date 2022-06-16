@@ -46,23 +46,23 @@ Each zipped directory contains randomly sampled images from the [iNaturalist dat
 SIZE = "TINY"
 
 if SIZE == "TINY":
-  src_url = "https://storage.googleapis.com/wandb_datasets/nature_100.zip"
-  src_zip = "nature_100.zip"
-  DATA_SRC = "nature_100"
-  IMAGES_PER_LABEL = 10
-  BALANCED_SPLITS = {"train" : 8, "val" : 1, "test": 1}
+    src_url = "https://storage.googleapis.com/wandb_datasets/nature_100.zip"
+    src_zip = "nature_100.zip"
+    DATA_SRC = "nature_100"
+    IMAGES_PER_LABEL = 10
+    BALANCED_SPLITS = {"train": 8, "val": 1, "test": 1}
 elif SIZE == "MEDIUM":
-  src_url = "https://storage.googleapis.com/wandb_datasets/nature_1K.zip"
-  src_zip = "nature_1K.zip"
-  DATA_SRC = "nature_1K"
-  IMAGES_PER_LABEL = 100
-  BALANCED_SPLITS = {"train" : 80, "val" : 10, "test": 10}
+    src_url = "https://storage.googleapis.com/wandb_datasets/nature_1K.zip"
+    src_zip = "nature_1K.zip"
+    DATA_SRC = "nature_1K"
+    IMAGES_PER_LABEL = 100
+    BALANCED_SPLITS = {"train": 80, "val": 10, "test": 10}
 elif SIZE == "LARGE":
-  src_url = "https://storage.googleapis.com/wandb_datasets/nature_12K.zip"
-  src_zip = "nature_12K.zip"
-  DATA_SRC = "inaturalist_12K/train" # (technically a subset of only 10K images)
-  IMAGES_PER_LABEL = 1000
-  BALANCED_SPLITS = {"train" : 800, "val" : 100, "test": 100}
+    src_url = "https://storage.googleapis.com/wandb_datasets/nature_12K.zip"
+    src_zip = "nature_12K.zip"
+    DATA_SRC = "inaturalist_12K/train"  # (technically a subset of only 10K images)
+    IMAGES_PER_LABEL = 1000
+    BALANCED_SPLITS = {"train": 800, "val": 100, "test": 100}
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%capture
@@ -79,8 +79,8 @@ Start out by installing the experiment tracking library and setting up your free
 *   **wandb login** – Login to your W&B account so you can log all your metrics in one place
 """
 
-!pip install wandb -qq
 import wandb
+
 wandb.login()
 
 import os
@@ -92,7 +92,7 @@ SRC = DATA_SRC
 # the total number of images is 10X this (10 classes)
 TOTAL_IMAGES = IMAGES_PER_LABEL * 10
 PROJECT_NAME = "artifacts_demo"
-PREFIX = "inat" # convenient for tracking local data
+PREFIX = "inat"  # convenient for tracking local data
 
 """# Step 1: Upload raw data"""
 
@@ -106,16 +106,16 @@ raw_data_at = wandb.Artifact(RAW_DATA_AT, type="raw_data")
 # each folder contains images of the corresponding class
 labels = os.listdir(SRC)
 for l in labels:
-  imgs_per_label = os.path.join(SRC, l)
-  if os.path.isdir(imgs_per_label):
-    imgs = os.listdir(imgs_per_label)
-    # randomize the order
-    shuffle(imgs)
-    img_file_ids = imgs[:IMAGES_PER_LABEL]
-    for f in img_file_ids:
-      file_path = os.path.join(SRC, l, f)
-      # add file to artifact by full path
-      raw_data_at.add_file(file_path, name=l + "/" + f)
+    imgs_per_label = os.path.join(SRC, l)
+    if os.path.isdir(imgs_per_label):
+        imgs = os.listdir(imgs_per_label)
+        # randomize the order
+        shuffle(imgs)
+        img_file_ids = imgs[:IMAGES_PER_LABEL]
+        for f in img_file_ids:
+            file_path = os.path.join(SRC, l, f)
+            # add file to artifact by full path
+            raw_data_at.add_file(file_path, name=l + "/" + f)
 
 # save artifact to W&B
 run.log_artifact(raw_data_at)
@@ -141,31 +141,32 @@ DATA_SPLITS = BALANCED_SPLITS
 ats = {}
 # wrap artifacts in dictionary for convenience
 for split, count in DATA_SPLITS.items():
-  ats[split] = wandb.Artifact("_".join([PREFIX, split, "data", str(count*10)]), 
-                              "_".join([split, "data"]))
+    ats[split] = wandb.Artifact(
+        "_".join([PREFIX, split, "data", str(count * 10)]), "_".join([split, "data"])
+    )
 
 labels = os.listdir(data_dir)
 for l in labels:
-  if l.startswith("."): # skip non-label file
-    continue
-  imgs_per_label = os.listdir(os.path.join(data_dir, l))
-  shuffle(imgs_per_label)
-  start_id = 0
-  for split, count in DATA_SPLITS.items():
-    # take a subset
-    split_imgs = imgs_per_label[start_id:start_id+count]
-    for img_file in split_imgs:
-      full_path = os.path.join(data_dir, l, img_file)
-      # add file to artifact by full path
-      # note: pass the label to the name parameter to retain it in
-      # the data structure 
-      ats[split].add_file(full_path, name = os.path.join(l, img_file))
-    start_id += count
+    if l.startswith("."):  # skip non-label file
+        continue
+    imgs_per_label = os.listdir(os.path.join(data_dir, l))
+    shuffle(imgs_per_label)
+    start_id = 0
+    for split, count in DATA_SPLITS.items():
+        # take a subset
+        split_imgs = imgs_per_label[start_id : start_id + count]
+        for img_file in split_imgs:
+            full_path = os.path.join(data_dir, l, img_file)
+            # add file to artifact by full path
+            # note: pass the label to the name parameter to retain it in
+            # the data structure
+            ats[split].add_file(full_path, name=os.path.join(l, img_file))
+        start_id += count
 
 # save all three artifacts to W&B
 # note: yes, in this example, we are cheating and have labels for the "test" data ;)
 for split, artifact in ats.items():
-  run.log_artifact(artifact)
+    run.log_artifact(artifact)
 
 run.finish()
 
@@ -176,12 +177,12 @@ run.finish()
 """
 
 # EXPERIMENT CONFIG
-#---------------------------
+# ---------------------------
 # if you modify these, make sure the total count is less than or equal to
 # the number of files uploaded for that split in the train/val data artifact
 NUM_TRAIN = BALANCED_SPLITS["train"] * 10
 NUM_VAL = BALANCED_SPLITS["val"] * 10
-NUM_EPOCHS = 1 # set low for demo purposes; try 3, 5, or as many as you like
+NUM_EPOCHS = 1  # set low for demo purposes; try 3, 5, or as many as you like
 
 # model name
 # if you want to train a sufficiently different model, give this a new name
@@ -214,108 +215,116 @@ from wandb.keras import WandbCallback
 
 # experiment configuration saved to W&B
 config_defaults = {
-  "num_train" : NUM_TRAIN,
-  "num_val" : NUM_VAL,
-  "epochs" : NUM_EPOCHS,
-  "num_classes" : 10,
-  "fc_size" : 1024,
-  # inceptionV3 settings
-  "img_width" : 299,
-  "img_height": 299,
-  "batch_size" : 32
+    "num_train": NUM_TRAIN,
+    "num_val": NUM_VAL,
+    "epochs": NUM_EPOCHS,
+    "num_classes": 10,
+    "fc_size": 1024,
+    # inceptionV3 settings
+    "img_width": 299,
+    "img_height": 299,
+    "batch_size": 32,
 }
 
+
 def finetune_inception_model(fc_size, num_classes):
-  """Load InceptionV3 with ImageNet weights, freeze it,
-  and attach a finetuning top for this classification task"""
-  # load InceptionV3 as base
-  base = InceptionV3(weights="imagenet", include_top="False")
-  # freeze base layers
-  for layer in base.layers:
-    layer.trainable = False
-  x = base.get_layer('mixed10').output 
+    """Load InceptionV3 with ImageNet weights, freeze it,
+    and attach a finetuning top for this classification task"""
+    # load InceptionV3 as base
+    base = InceptionV3(weights="imagenet", include_top="False")
+    # freeze base layers
+    for layer in base.layers:
+        layer.trainable = False
+    x = base.get_layer("mixed10").output
 
-  # attach a fine-tuning layer
-  x = GlobalAveragePooling2D()(x)
-  x = Dense(fc_size, activation='relu')(x)
-  guesses = Dense(num_classes, activation='softmax')(x)
+    # attach a fine-tuning layer
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(fc_size, activation="relu")(x)
+    guesses = Dense(num_classes, activation="softmax")(x)
 
-  model = Model(inputs=base.input, outputs=guesses)
-  model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
-  return model
+    model = Model(inputs=base.input, outputs=guesses)
+    model.compile(
+        optimizer="rmsprop", loss="categorical_crossentropy", metrics=["accuracy"]
+    )
+    return model
+
 
 def train():
-  """ Main training loop. This is called pretrain because it freezes
-  the InceptionV3 layers of the model and only trains the new top layers
-  on the new data.   subsequent training phase would unfreeze all the layers
-  and finetune the whole model on the new data""" 
-  # track this experiment with wandb: all runs will be sent
-  # to the given project name
-  run = wandb.init(project=PROJECT_NAME, job_type="train", config=config_defaults)
-  cfg = wandb.config
+    """Main training loop. This is called pretrain because it freezes
+    the InceptionV3 layers of the model and only trains the new top layers
+    on the new data.   subsequent training phase would unfreeze all the layers
+    and finetune the whole model on the new data"""
+    # track this experiment with wandb: all runs will be sent
+    # to the given project name
+    run = wandb.init(project=PROJECT_NAME, job_type="train", config=config_defaults)
+    cfg = wandb.config
 
-  # artifact names
-  train_at = os.path.join(PROJECT_NAME, PREFIX + "_train_data_" + str(NUM_TRAIN)) + ":latest"
-  val_at = os.path.join(PROJECT_NAME, PREFIX + "_val_data_" + str(NUM_VAL)) + ":latest"
+    # artifact names
+    train_at = (
+        os.path.join(PROJECT_NAME, PREFIX + "_train_data_" + str(NUM_TRAIN)) + ":latest"
+    )
+    val_at = (
+        os.path.join(PROJECT_NAME, PREFIX + "_val_data_" + str(NUM_VAL)) + ":latest"
+    )
 
-  train_data = run.use_artifact(train_at, type='train_data')
-  train_dir = train_data.download()
-  val_data = run.use_artifact(val_at, type='val_data')
-  val_dir = val_data.download()
+    train_data = run.use_artifact(train_at, type="train_data")
+    train_dir = train_data.download()
+    val_data = run.use_artifact(val_at, type="val_data")
+    val_dir = val_data.download()
 
-  # create train and validation data generators
-  train_datagen = ImageDataGenerator(
-      rescale=1. / 255,
-      shear_range=0.2,
-      zoom_range=0.2,
-      horizontal_flip=True)
-  val_datagen = ImageDataGenerator(rescale=1. / 255)
+    # create train and validation data generators
+    train_datagen = ImageDataGenerator(
+        rescale=1.0 / 255, shear_range=0.2, zoom_range=0.2, horizontal_flip=True
+    )
+    val_datagen = ImageDataGenerator(rescale=1.0 / 255)
 
-  train_generator = train_datagen.flow_from_directory(
-    train_dir,
-    target_size=(cfg.img_width, cfg.img_height),
-    batch_size=cfg.batch_size,
-    class_mode='categorical')
+    train_generator = train_datagen.flow_from_directory(
+        train_dir,
+        target_size=(cfg.img_width, cfg.img_height),
+        batch_size=cfg.batch_size,
+        class_mode="categorical",
+    )
 
-  val_generator = val_datagen.flow_from_directory(
-    val_dir,
-    target_size=(cfg.img_width, cfg.img_height),
-    batch_size=cfg.batch_size,
-    class_mode='categorical')
+    val_generator = val_datagen.flow_from_directory(
+        val_dir,
+        target_size=(cfg.img_width, cfg.img_height),
+        batch_size=cfg.batch_size,
+        class_mode="categorical",
+    )
 
-  # instantiate model and callbacks
-  model = finetune_inception_model(cfg.fc_size, cfg.num_classes)
+    # instantiate model and callbacks
+    model = finetune_inception_model(cfg.fc_size, cfg.num_classes)
 
-  # log initial model before training
-  model_artifact = wandb.Artifact(
-            "iv3", type="model",
-            description="unmodified inception v3",
-            metadata=dict(cfg))
+    # log initial model before training
+    model_artifact = wandb.Artifact(
+        "iv3", type="model", description="unmodified inception v3", metadata=dict(cfg)
+    )
 
-  model.save(INIT_MODEL_DIR)
-  model_artifact.add_dir(INIT_MODEL_DIR)
-  run.log_artifact(model_artifact)
-  callbacks = [WandbCallback()]
+    model.save(INIT_MODEL_DIR)
+    model_artifact.add_dir(INIT_MODEL_DIR)
+    run.log_artifact(model_artifact)
+    callbacks = [WandbCallback()]
 
-  # train!
-  model.fit(
-    train_generator,
-    steps_per_epoch = cfg.num_train // cfg.batch_size,
-    epochs=cfg.epochs,
-    validation_data=val_generator,
-    callbacks = callbacks,
-    validation_steps=cfg.num_val // cfg.batch_size)
+    # train!
+    model.fit(
+        train_generator,
+        steps_per_epoch=cfg.num_train // cfg.batch_size,
+        epochs=cfg.epochs,
+        validation_data=val_generator,
+        callbacks=callbacks,
+        validation_steps=cfg.num_val // cfg.batch_size,
+    )
 
-  # save trained model as artifact
-  trained_model_artifact = wandb.Artifact(
-            MODEL_NAME, type="model",
-            description="trained inception v3",
-            metadata=dict(cfg))
+    # save trained model as artifact
+    trained_model_artifact = wandb.Artifact(
+        MODEL_NAME, type="model", description="trained inception v3", metadata=dict(cfg)
+    )
 
-  model.save(FINAL_MODEL_DIR)
-  trained_model_artifact.add_dir(FINAL_MODEL_DIR)
-  run.log_artifact(trained_model_artifact)
-  run.finish()
+    model.save(FINAL_MODEL_DIR)
+    trained_model_artifact.add_dir(FINAL_MODEL_DIR)
+    run.log_artifact(trained_model_artifact)
+    run.finish()
+
 
 train()
 
@@ -327,42 +336,43 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 import numpy as np
 import os
+
 run = wandb.init(project=PROJECT_NAME, job_type="inference")
 # use the latest version of the model
 model_at = run.use_artifact(MODEL_NAME + ":latest")
 # download the directory in which the model is saved
-model_dir= model_at.download()
+model_dir = model_at.download()
 print("model: ", model_dir)
 model = keras.models.load_model(model_dir)
 
-TEST_DATA_AT = PREFIX + "_test_data_" + str(BALANCED_SPLITS["test"]*10) + ":latest"
+TEST_DATA_AT = PREFIX + "_test_data_" + str(BALANCED_SPLITS["test"] * 10) + ":latest"
 test_data_at = run.use_artifact(TEST_DATA_AT)
 test_dir = test_data_at.download()
 
 imgs = []
 class_labels = os.listdir(test_dir)
 for l in class_labels:
-  if l.startswith("."):
-    continue
-  imgs_per_class = os.listdir(os.path.join(test_dir, l))
-  for img in imgs_per_class:
-    img_path = os.path.join(test_dir, l, img)
-    img = image.load_img(img_path, target_size=(299, 299))
-    img = image.img_to_array(img)
-    # don't forget to rescale test images to match the range of inputs
-    # to the network
-    img = np.expand_dims(img/255.0, axis=0)
-    imgs.append(img)
+    if l.startswith("."):
+        continue
+    imgs_per_class = os.listdir(os.path.join(test_dir, l))
+    for img in imgs_per_class:
+        img_path = os.path.join(test_dir, l, img)
+        img = image.load_img(img_path, target_size=(299, 299))
+        img = image.img_to_array(img)
+        # don't forget to rescale test images to match the range of inputs
+        # to the network
+        img = np.expand_dims(img / 255.0, axis=0)
+        imgs.append(img)
 
 preds = {}
 imgs = np.vstack(imgs)
 classes = model.predict(imgs, batch_size=32)
 for c in classes:
-  class_id = np.argmax(c)
-  if class_id in preds:
-    preds[class_id] += 1
-  else:
-    preds[class_id] = 1
+    class_id = np.argmax(c)
+    if class_id in preds:
+        preds[class_id] += 1
+    else:
+        preds[class_id] = 1
 
 # print the counts of predicted labels as a quick sanity check
 # note that for tiny/medium datasets, this won't be very meaningful
@@ -377,4 +387,3 @@ We're always free for academics and open source projects. Email carey@wandb.com 
 3. [Articles](https://www.wandb.com/articles) - blog posts and tutorials
 4. [Community](wandb.me/slack) - join our Slack community forum
 """
-
