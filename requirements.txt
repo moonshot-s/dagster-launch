@@ -2,3 +2,5 @@ torch>=1.2.0
 torchvision
 wandb
 argparse
+sklearn
+numpy
