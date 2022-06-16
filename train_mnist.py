@@ -7,6 +7,7 @@ import torch.optim as optim
 import torchvision
 from torchvision import datasets, transforms
 import wandb
+from wandb.beta.workflows import log_model
 
 # workaround to fetch MNIST data
 import os
@@ -151,31 +152,13 @@ def main():
     optimizer = optim.SGD(model.parameters(), lr=args.lr,
                           momentum=args.momentum)
     wandb.watch(model)
-    cfg = wandb.config
-    # log initial model before training
-    model_artifact = wandb.Artifact(
-        "iv3", type="model",
-        description="unmodified inception v3",
-        metadata=dict(cfg))
-
-    torch.save(model.state_dict(), INIT_MODEL_DIR)
-    model_artifact.add_dir(INIT_MODEL_DIR)
-    run.log_artifact(model_artifact)
-    # callbacks = [WandbCallback()]
+    sm = log_model(model, "my-mnist-model", aliases=["initial"])
 
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
         test(args, model, device, test_loader)
 
-    trained_model_artifact = wandb.Artifact(
-        MODEL_NAME, type="model",
-        description="trained inception v3",
-        metadata=dict(cfg))
-
-    torch.save(model.state_dict(), FINAL_MODEL_DIR)
-    trained_model_artifact.add_dir(FINAL_MODEL_DIR)
-    run.log_artifact(trained_model_artifact)
-    run.finish()
+    sm = log_model(model, "my-mnist-model", aliases=["trained"])
 
 
 if __name__ == '__main__':
