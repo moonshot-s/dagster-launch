@@ -4,3 +4,4 @@ wandb
 argparse
 sklearn
 numpy
+python-utils
