@@ -6,5 +6,4 @@ sklearn
 numpy
 python-utils
 keras
-tensorflow
 pytorch-lightning
