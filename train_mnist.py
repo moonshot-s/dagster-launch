@@ -158,7 +158,7 @@ def main():
         description="unmodified inception v3",
         metadata=dict(cfg))
 
-    model.save(INIT_MODEL_DIR)
+    torch.save(model.state_dict(), INIT_MODEL_DIR)
     model_artifact.add_dir(INIT_MODEL_DIR)
     run.log_artifact(model_artifact)
     # callbacks = [WandbCallback()]
@@ -172,7 +172,7 @@ def main():
         description="trained inception v3",
         metadata=dict(cfg))
 
-    model.save(FINAL_MODEL_DIR)
+    torch.save(model.state_dict(), FINAL_MODEL_DIR)
     trained_model_artifact.add_dir(FINAL_MODEL_DIR)
     run.log_artifact(trained_model_artifact)
     run.finish()
