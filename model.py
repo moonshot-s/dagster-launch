@@ -218,7 +218,7 @@ def main():
         train(args, model, device, train_loader, optimizer, epoch)
         test(args, model, device, test_loader)
 
-    log_model(model, "model")
+    log_model(model, name="model", project="launch_testing")
 
 
 if __name__ == "__main__":
