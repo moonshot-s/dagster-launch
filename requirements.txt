@@ -5,3 +5,5 @@ argparse
 sklearn
 numpy
 python-utils
+keras
+tensorflow
